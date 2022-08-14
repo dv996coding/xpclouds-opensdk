@@ -17,8 +17,9 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
@@ -33,18 +34,17 @@ import java.util.Map;
  * @author 984199774@qq.com
  */
 public final class HttpClientUtil {
-    private final static Integer OK = 200;
-    private final static Integer LIMIT_REQUEST = 429;
+    private static final Logger log = LoggerFactory.getLogger(HttpClientUtil.class);
     /**
      * 全局连接池对象
      */
-    private static final PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
+    private static final PoolingHttpClientConnectionManager CONNECTION_MANAGER = new PoolingHttpClientConnectionManager();
 
     static {
         // 设置最大连接数
-        connectionManager.setMaxTotal(200);
+        CONNECTION_MANAGER.setMaxTotal(200);
         // 设置每个连接的路由数
-        connectionManager.setDefaultMaxPerRoute(20);
+        CONNECTION_MANAGER.setDefaultMaxPerRoute(20);
     }
 
     /**
@@ -62,53 +62,47 @@ public final class HttpClientUtil {
                 // 响应超时时间
                 .setSocketTimeout(timeOut)
                 .build();
-        HttpRequestRetryHandler retryHandler = new HttpRequestRetryHandler() {
-            @Override
-            public boolean retryRequest(IOException exception, int executionCount, HttpContext context) {
-                if (executionCount >= 3) {
-                    // 如果已经重试了3次，就放弃
-                    return false;
-                }
-                if (exception instanceof NoHttpResponseException) {
-                    // 如果服务器丢掉了连接，那么就重试
-                    return true;
-                }
-                if (exception instanceof SSLHandshakeException) {
-                    // 不要重试SSL握手异常
-                    return false;
-                }
-                if (exception instanceof InterruptedIOException) {
-                    // 超时
-                    return true;
-                }
-                if (exception instanceof UnknownHostException) {
-                    return false;
-                }
-                if (exception instanceof ConnectTimeoutException) {
-                    return false;
-                }
-                if ((exception instanceof SSLException)) {
-                    return false;
-                }
-                HttpClientContext clientContext = HttpClientContext.adapt(context);
-                HttpRequest request = clientContext.getRequest();
-                // 如果请求是幂等的，就再次尝试
-                if (!(request instanceof HttpEntityEnclosingRequest)) {
-                    return true;
-                }
+        HttpRequestRetryHandler retryHandler = (exception, executionCount, context) -> {
+            if (executionCount >= Constant.MAX_RETRY_TIME) {
+                // 如果已经重试了3次，就放弃
                 return false;
             }
+            if (exception instanceof NoHttpResponseException) {
+                // 如果服务器丢掉了连接，那么就重试
+                return true;
+            }
+            if (exception instanceof SSLHandshakeException) {
+                // 不要重试SSL握手异常
+                return false;
+            }
+            if (exception instanceof InterruptedIOException) {
+                // 超时
+                return true;
+            }
+            if (exception instanceof UnknownHostException) {
+                return false;
+            }
+            if (exception instanceof ConnectTimeoutException) {
+                return false;
+            }
+            if ((exception instanceof SSLException)) {
+                return false;
+            }
+            HttpClientContext clientContext = HttpClientContext.adapt(context);
+            HttpRequest request = clientContext.getRequest();
+            // 如果请求是幂等的，就再次尝试
+            return !(request instanceof HttpEntityEnclosingRequest);
         };
         return HttpClients.custom()
                 // 把请求相关的超时信息设置到连接客户端
                 .setDefaultRequestConfig(requestConfig)
                 // 把请求重试设置到连接客户端
                 .setRetryHandler(retryHandler)
-                .setConnectionManager(connectionManager)
+                .setConnectionManager(CONNECTION_MANAGER)
                 .build();
     }
 
-    public static String doPostJSON(String url, String json) {
+    public static String doPostJson(String url, String json) {
         return doPost(url, json, null);
     }
 
@@ -128,27 +122,42 @@ public final class HttpClientUtil {
                 httpPost.addHeader("Content-Type", "application/json;charset=UTF-8");
                 httpPost.setEntity(entity);
             }
+
             response = httpClient.execute(httpPost);
-            return EntityUtils.toString(response.getEntity());
+            if (response != null) {
+                Integer status = response.getStatusLine().getStatusCode();
+                if (status >= Constant.SUCCESS && status < Constant.STATUS) {
+                    HttpEntity entity = response.getEntity();
+                    return entity != null ? EntityUtils.toString(entity) : null;
+                } else if (status.equals(Constant.LIMIT_REQUEST)) {
+                    return "{\"code\":429,\"msg\":\"too manny requests\"}";
+                } else if (status.equals(Constant.PARAM_ERROR)) {
+                    return "{\"code\":400,\"msg\":\"Parameter request error\"}";
+                } else {
+                    log.warn("Unexpected response status: {}", status);
+                }
+            }
+            return null;
         } catch (Exception e) {
+            log.error("HttpPost Request Exception: {0}", e);
             try {
                 httpPost.abort();
-            } catch (Exception exception) {
-                throw new RuntimeException(exception);
+            } catch (Exception e1) {
+                log.error("HttpPost Abort Exception: {0}", e1);
             }
-            throw new RuntimeException(e);
         } finally {
             if (response != null) {
                 try {
                     response.close();
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    log.error("HttpPost Response Close IO Exception: {0}", e);
                 }
             }
         }
+        return null;
     }
 
-    public static String doPostJSON(String url, String json, Map<String, String> headers) {
+    public static String doPostJson(String url, String json, Map<String, String> headers) {
         CloseableHttpClient httpClient = null;
         try {
             httpClient = HttpClients.createDefault();
@@ -172,10 +181,10 @@ public final class HttpClientUtil {
 
             ResponseHandler<String> responseHandler = response -> {
                 Integer status = response.getStatusLine().getStatusCode();
-                if (status >= OK && status < 300) {
+                if (status >= Constant.SUCCESS && status < Constant.STATUS) {
                     HttpEntity entity = response.getEntity();
                     return entity != null ? EntityUtils.toString(entity) : null;
-                } else if (status.equals(LIMIT_REQUEST)) {
+                } else if (status.equals(Constant.LIMIT_REQUEST)) {
                     return "{\"code\":429,\"msg\":\"too manny requests\"}";
                 } else {
                     throw new ClientProtocolException("Unexpected response status: " + status);
