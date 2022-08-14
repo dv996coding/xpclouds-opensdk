@@ -1,6 +1,9 @@
 package io.github.dv996coding.config;
 
 import com.aliyun.oss.OSSClient;
+import com.aliyun.oss.common.auth.DefaultCredentialProvider;
+import io.github.dv996coding.properties.OssProperties;
+import io.github.dv996coding.service.AliyunCloudStorageService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -13,21 +16,16 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnClass({OSSClient.class})
 @EnableConfigurationProperties(OssProperties.class)
 public class OssAutoConfiguration {
-    private final OssProperties ossProperties;
-    public OssAutoConfiguration(final OssProperties ossProperties){
-        this.ossProperties=ossProperties;
-    }
+    private OSSClient ossClient;
+    private OssProperties properties;
 
-    public OssProperties getOssProperties() {
-        return ossProperties;
+    public OssAutoConfiguration(OssProperties properties) {
+        this.ossClient = new OSSClient(properties.getEndpoint(), new DefaultCredentialProvider(properties.getAccessKeyId(), properties.getAccessKeySecret()), null);
+        this.properties = properties;
     }
 
     @Bean
-    public OssClientFactory ossClientFactoryBean(){
-        final OssClientFactory factory=new OssClientFactory();
-        factory.setEndpoint(ossProperties.getEndpoint());
-        factory.setAccessKeyId(ossProperties.getAccessKeyId());
-        factory.setAccessKeySecret(ossProperties.getAccessKeySecret());
-        return factory;
+    public AliyunCloudStorageService storageService() {
+        return new AliyunCloudStorageService(properties, ossClient);
     }
 }

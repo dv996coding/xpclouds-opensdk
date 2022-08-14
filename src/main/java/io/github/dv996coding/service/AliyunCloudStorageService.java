@@ -1,8 +1,7 @@
 package io.github.dv996coding.service;
 
 import com.aliyun.oss.OSSClient;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.stereotype.Component;
+import io.github.dv996coding.properties.OssProperties;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -10,9 +9,18 @@ import java.io.InputStream;
 /**
  * @author 984199774@qq.com
  */
-@ConditionalOnClass({OSSClient.class})
-@Component
-public class AliyunCloudStorageService extends CloudStorageService{
+public class AliyunCloudStorageService extends CloudStorageService {
+    /**
+     * 云存储配置信息
+     */
+    private OssProperties properties;
+    private OSSClient ossClient;
+
+    public AliyunCloudStorageService(OssProperties properties, OSSClient ossClient) {
+        this.properties = properties;
+        this.ossClient = ossClient;
+    }
+
 
     @Override
     public String upload(byte[] data, String path) {
@@ -21,23 +29,23 @@ public class AliyunCloudStorageService extends CloudStorageService{
 
     @Override
     public String uploadSuffix(byte[] data, String suffix) {
-        return upload(data, getPath(getOssProperties().getPrefix(), getOssProperties().getSubPrefix(), suffix));
+        return upload(data, getPath(properties.getPrefix(), properties.getSubPrefix(), suffix));
     }
 
     @Override
     public String upload(InputStream inputStream, String path) {
         try {
-            client.ossClientFactoryBean().getObject().putObject(getOssProperties().getBucketName(), path, inputStream);
-        } catch (Exception e){
-           e.printStackTrace();
+            ossClient.putObject(properties.getBucketName(), path, inputStream);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        return getOssProperties().getBindDomain() + "/" + path;
+        return properties.getBindDomain() + "/" + path;
     }
 
     @Override
     public void deleteObject(String objName) {
         try {
-            client.ossClientFactoryBean().getObject().deleteObject(getOssProperties().getBucketName(), objName);
+            ossClient.deleteObject(properties.getBucketName(), objName);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -1,10 +1,7 @@
 package io.github.dv996coding.service;
 
-import io.github.dv996coding.config.OssAutoConfiguration;
-import io.github.dv996coding.config.OssProperties;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.annotation.Resource;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -14,16 +11,6 @@ import java.util.UUID;
  * @author 984199774@qq.com
  */
 public abstract class CloudStorageService {
-    /**
-     * 云存储配置信息
-     */
-    @Resource
-    protected OssAutoConfiguration client;
-
-    public OssProperties getOssProperties() {
-        return this.client.getOssProperties();
-    }
-
     /**
      * 文件路径
      *

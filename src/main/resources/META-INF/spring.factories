@@ -1,6 +1,5 @@
 # Auto Configure
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-net.xpclouds.sdk.config.OssAutoConfiguration,\
-net.xpclouds.sdk.service.AliyunCloudStorageService,\
-net.xpclouds.sdk.config.XpDevInfoAutoConfiguration,\
-net.xpclouds.sdk.service.PrintService
+  io.github.dv996coding.config.XpDevInfoAutoConfiguration,\
+  io.github.dv996coding.config.OssAutoConfiguration,\
+  io.github.dv996coding.service.PrintService

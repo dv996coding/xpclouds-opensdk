@@ -1,10 +1,13 @@
 package io.github.dv996coding.service;
 
 import com.alibaba.fastjson.JSON;
+import io.github.dv996coding.properties.DevelopInfoProperties;
 import io.github.dv996coding.util.HttpClientUtil;
 import io.github.dv996coding.vo.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
 
 /**
  * 电子面单云打印相关接口封装类
@@ -13,19 +16,11 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class PrintService {
-    private final static String BASE_URL = "https://open-barcode.xpyun.net";
-    private String user;
-    private String userKey;
-    private Boolean debug;
-
-    public PrintService(String user, String userKey, Boolean debug) {
-        this.user = user;
-        this.userKey = userKey;
-        this.debug = debug;
-    }
-
-    public PrintService() {
-    }
+    /**
+     * 开发者信息
+     */
+    @Resource
+    private DevelopInfoProperties properties;
 
     /**
      * 1.验证打印机 /api/openapi/sprinter/verifyPrinter
@@ -42,11 +37,14 @@ public class PrintService {
             restResponse.setData(false);
             return restResponse;
         }
-        restRequest.setUser(this.user);
-        restRequest.setUserKey(this.userKey);
-        String url = String.format("%s/api/openapi/sprinter/verifyPrinter", BASE_URL);
+        restRequest.setUser(properties.getUser());
+        restRequest.setUserKey(properties.getUserKey());
+        if (StringUtils.isEmpty(restRequest.getName())) {
+            restRequest.setName("芯烨云条码打印机");
+        }
+        String url = String.format("%s/api/openapi/sprinter/verifyPrinter", properties.getDomain());
         String param = restRequest.toString();
-        if (this.debug) {
+        if (properties.getDebug()) {
             System.out.println("Request Url: " + url);
             System.out.println("Request Param: " + param);
         }
@@ -69,11 +67,11 @@ public class PrintService {
             restResponse.setMsg("The printer SN is invalid");
             return restResponse;
         }
-        restRequest.setUser(this.user);
-        restRequest.setUserKey(this.userKey);
-        String url = String.format("%s/api/openapi/sprinter/print", BASE_URL);
+        restRequest.setUser(properties.getUser());
+        restRequest.setUserKey(properties.getUserKey());
+        String url = String.format("%s/api/openapi/sprinter/print", properties.getDomain());
         String param = restRequest.toString();
-        if (this.debug) {
+        if (properties.getDebug()) {
             System.out.println("Request Url: " + url);
             System.out.println("Request Param: " + param);
         }
@@ -95,12 +93,12 @@ public class PrintService {
             restResponse.setMsg("The printer SN is invalid");
             return restResponse;
         }
-        restRequest.setUser(this.user);
-        restRequest.setUserKey(this.userKey);
-        String url = String.format("%s/api/openapi/sprinter/printImage", BASE_URL);
+        restRequest.setUser(properties.getUser());
+        restRequest.setUserKey(properties.getUserKey());
+        String url = String.format("%s/api/openapi/sprinter/printImage", properties.getDomain());
         String param = restRequest.toString();
 
-        if (this.debug) {
+        if (properties.getDebug()) {
             System.out.println("Request Url: " + url);
             System.out.println("Request Param: " + param);
         }
@@ -122,11 +120,11 @@ public class PrintService {
             restResponse.setMsg("The printer SN is invalid");
             return restResponse;
         }
-        restRequest.setUser(this.user);
-        restRequest.setUserKey(this.userKey);
-        String url = String.format("%s/api/openapi/sprinter/delPrinterQueue", BASE_URL);
+        restRequest.setUser(properties.getUser());
+        restRequest.setUserKey(properties.getUserKey());
+        String url = String.format("%s/api/openapi/sprinter/delPrinterQueue", properties.getDomain());
         String param = restRequest.toString();
-        if (this.debug) {
+        if (properties.getDebug()) {
             System.out.println("Request Url: " + url);
             System.out.println("Request Param: " + param);
         }
@@ -148,11 +146,11 @@ public class PrintService {
             restResponse.setMsg("Invalid print order number");
             return restResponse;
         }
-        restRequest.setUser(this.user);
-        restRequest.setUserKey(this.userKey);
-        String url = String.format("%s/api/openapi/sprinter/queryOrderState", BASE_URL);
+        restRequest.setUser(properties.getUser());
+        restRequest.setUserKey(properties.getUserKey());
+        String url = String.format("%s/api/openapi/sprinter/queryOrderState", properties.getDomain());
         String param = restRequest.toString();
-        if (this.debug) {
+        if (properties.getDebug()) {
             System.out.println("Request Url: " + url);
             System.out.println("Request Param: " + param);
         }
@@ -179,11 +177,11 @@ public class PrintService {
             restResponse.setMsg("The printer SN is invalid");
             return restResponse;
         }
-        restRequest.setUser(this.user);
-        restRequest.setUserKey(this.userKey);
-        String url = String.format("%s/api/openapi/sprinter/queryPrinterStatus", BASE_URL);
+        restRequest.setUser(properties.getUser());
+        restRequest.setUserKey(properties.getUserKey());
+        String url = String.format("%s/api/openapi/sprinter/queryPrinterStatus", properties.getDomain());
         String param = restRequest.toString();
-        if (this.debug) {
+        if (properties.getDebug()) {
             System.out.println("Request Url: " + url);
             System.out.println("Request Param: " + param);
         }
@@ -206,11 +204,11 @@ public class PrintService {
             restResponse.setData(-1);
             return restResponse;
         }
-        restRequest.setUser(this.user);
-        restRequest.setUserKey(this.userKey);
-        String url = String.format("%s/api/openapi/sprinter/getAwaitTasks", BASE_URL);
+        restRequest.setUser(properties.getUser());
+        restRequest.setUserKey(properties.getUserKey());
+        String url = String.format("%s/api/openapi/sprinter/getAwaitTasks", properties.getDomain());
         String param = restRequest.toString();
-        if (this.debug) {
+        if (properties.getDebug()) {
             System.out.println("Request Url: " + url);
             System.out.println("Request Param: " + param);
         }
@@ -232,11 +230,11 @@ public class PrintService {
             restResponse.setMsg("The printer SN is invalid");
             return restResponse;
         }
-        restRequest.setUser(this.user);
-        restRequest.setUserKey(this.userKey);
-        String url = String.format("%s/api/openapi/sprinter/printLabel", BASE_URL);
+        restRequest.setUser(properties.getUser());
+        restRequest.setUserKey(properties.getUserKey());
+        String url = String.format("%s/api/openapi/sprinter/printLabel", properties.getDomain());
         String param = restRequest.toString();
-        if (this.debug) {
+        if (properties.getDebug()) {
             System.out.println("Request Url: " + url);
             System.out.println("Request Param: " + param);
         }

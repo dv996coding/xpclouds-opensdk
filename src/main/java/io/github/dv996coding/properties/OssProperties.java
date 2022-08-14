@@ -1,4 +1,4 @@
-package io.github.dv996coding.config;
+package io.github.dv996coding.properties;
 
 import com.aliyun.oss.OSSClient;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
