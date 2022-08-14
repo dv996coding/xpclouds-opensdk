@@ -34,10 +34,10 @@ public class HtmlToImageUtil {
     }
 
     /**
-     * 最终生成海报
+     * 将HTML内容转换为base64图片数据
      *
      * @param content html内容
-     * @return
+     * @return base64图片数据
      */
     public String getHtml2ImageContent(String content) {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -78,7 +78,7 @@ public class HtmlToImageUtil {
      * 将图片转换成Base64编码
      *
      * @param image 待处理图片
-     * @return
+     * @return base64图片数据
      */
 
     public String getImage2Base64Str(BufferedImage image) {

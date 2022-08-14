@@ -6,7 +6,7 @@ import com.alibaba.fastjson.JSON;
  * 返回公共参数
  *
  * @author 984199774@qq.com
- * @param <T>
+ * @param <T> 泛型参数
  */
 public class ObjectRestResponse<T> {
     /**

@@ -44,9 +44,9 @@ public final class ToolsUtil {
     /**
      * 字节数组转为十六进制
      *
-     * @param b
-     * @param rowSize
-     * @return
+     * @param b 源字节数组
+     * @param rowSize 行大小
+     * @return String[]
      */
     public static String[] byte2HexStr(byte[] b, int rowSize) {
         int len = b.length / rowSize;
@@ -67,8 +67,8 @@ public final class ToolsUtil {
     /**
      * 十六进制串中相同字母压缩
      *
-     * @param str
-     * @return
+     * @param str 源数据
+     * @return 压缩结果
      */
     public static String minimizeSameWord(String str) {
         Matcher matcher = MULTI_W.matcher(str);

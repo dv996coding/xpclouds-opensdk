@@ -10,7 +10,9 @@ public class ImageUtil {
     /**
      * 创建图片缩略图(等比缩放)
      *
-     * @param width  缩放的宽度
+     * @param width 缩放的宽度
+     * @param image 原图片
+     * @return 压缩后的图片
      */
     public static BufferedImage createThumbnail(BufferedImage image, float width) {
         try {
@@ -35,6 +37,7 @@ public class ImageUtil {
         }
         return null;
     }
+
     /**
      * 获取点的灰度值
      *
@@ -75,6 +78,7 @@ public class ImageUtil {
                 + (x == w - 1 || y == h - 1 ? 255 : gray[x + 1][y + 1]);
         return rs / 9;
     }
+
     /**
      * 通过OTSU大津算法计算分割阈值
      *
@@ -144,6 +148,7 @@ public class ImageUtil {
 
         return threshold;
     }
+
     private static int getGray(int rgb) {
         String str = Integer.toHexString(rgb);
         int r = Integer.parseInt(str.substring(2, 4), 16);
@@ -187,11 +192,13 @@ public class ImageUtil {
 
         return destImg;
     }
+
     /**
      * 2.二值化
      *
-     * @param bi
-     * @return
+     * @param bi 原图
+     * @param threshold 二值化分界值
+     * @return 二值化后的图
      */
     public static BufferedImage binaryImage(BufferedImage bi, Integer threshold) {
         int h = bi.getHeight();//获取图像的高
@@ -218,17 +225,17 @@ public class ImageUtil {
         }
         return nbi;
     }
+
     /**
      * 获取一张二值化图片
      *
-     * @param bufferImg
-     * @return
+     * @param bufferImg 原图对象
+     * @return 二值化结果
      */
     public static BufferedImage binaryImage(BufferedImage bufferImg) {
         int height = bufferImg.getHeight();
         int width = bufferImg.getWidth();
-        int rgb = bufferImg.getRGB(0, 0);
-        int rgbArray[][] = new int[width][height];
+        int[][] rgbArray = new int[width][height];
 
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
@@ -237,8 +244,8 @@ public class ImageUtil {
         }
 
         int threshold = otsuThreshold(rgbArray, height, width);
-
-        BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_BINARY);//  构造一个类型为预定义图像类型之一的 BufferedImage，TYPE_BYTE_BINARY（表示一个不透明的以字节打包的 1、2 或 4 位图像。）
+        //  构造一个类型为预定义图像类型之一的 BufferedImage，TYPE_BYTE_BINARY（表示一个不透明的以字节打包的 1、2 或 4 位图像。）
+        BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_BINARY);
 
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
