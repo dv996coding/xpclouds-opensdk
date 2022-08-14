@@ -157,6 +157,7 @@ public final class HttpClientUtil {
         return null;
     }
 
+    @Deprecated
     public static String doPostJson(String url, String json, Map<String, String> headers) {
         CloseableHttpClient httpClient = null;
         try {
