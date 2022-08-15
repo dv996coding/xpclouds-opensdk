@@ -60,7 +60,7 @@ public class PrintService {
             String json = HttpClientUtil.doPostJson(url, param);
             return JSON.parseObject(json, ObjectRestResponse.class);
         } catch (Exception ex) {
-            log.error("Invalid request parameter: {0}", ex);
+            log.error("Invalid request parameter: {}", ex);
             return JSON.parseObject(Constant.INVALID_PARAMETER, ObjectRestResponse.class);
         }
     }
@@ -74,6 +74,10 @@ public class PrintService {
      * @return 正确返回订单编号
      */
     public ObjectRestResponse<String> print(PrintOrderRequest restRequest) {
+        return printOrder(restRequest, "print");
+    }
+
+    private ObjectRestResponse<String> printOrder(PrintOrderRequest restRequest, String method) {
         try {
             AssertUtil.isDevelopInNoneEmpty(properties);
             ObjectRestResponse<String> restResponse = new ObjectRestResponse<>();
@@ -87,21 +91,24 @@ public class PrintService {
             }
             restRequest.setUser(properties.getUser());
             restRequest.setUserKey(properties.getUserKey());
-            String url = String.format("%s/api/openapi/sprinter/print", properties.getDomain());
+            StringBuilder builder = new StringBuilder(properties.getDomain());
+            builder.append("/api/openapi/sprinter/");
+            builder.append(method);
+            String url = builder.toString();
             String param = restRequest.toString();
             if (properties.getDebug()) {
-                 log.info("Request Url: {}\nRequest Param: {}", url, param);
+                log.info("Request Url: {}\nRequest Param: {}", url, param);
             }
             String json = HttpClientUtil.doPostJson(url, param);
             return JSON.parseObject(json, ObjectRestResponse.class);
         } catch (Exception ex) {
-            log.error("Invalid request parameter: {0}", ex);
+            log.error("Invalid request parameter: {}", ex);
             return JSON.parseObject(Constant.INVALID_PARAMETER, ObjectRestResponse.class);
         }
     }
 
     /**
-     * 2.图片内容打印订单 /api/openapi/sprinter/print
+     * 3.图片内容打印订单 /api/openapi/sprinter/print
      * 发送用户需要打印的订单内容给芯烨电子面单打印机
      *
      * @param restRequest 请求参数
@@ -125,18 +132,18 @@ public class PrintService {
             String param = restRequest.toString();
 
             if (properties.getDebug()) {
-                 log.info("Request Url: {}\nRequest Param: {}", url, param);
+                log.info("Request Url: {}\nRequest Param: {}", url, param);
             }
             String json = HttpClientUtil.doPostJson(url, param);
             return JSON.parseObject(json, ObjectRestResponse.class);
         } catch (Exception ex) {
-            log.error("Invalid request parameter: {0}", ex);
+            log.error("Invalid request parameter: {}", ex);
             return JSON.parseObject(Constant.INVALID_PARAMETER, ObjectRestResponse.class);
         }
     }
 
     /**
-     * 3.清空待打印队列 /api/openapi/sprinter/delPrinterQueue
+     * 4.清空待打印队列 /api/openapi/sprinter/delPrinterQueue
      * 清空指定打印机的待打印任务队列
      *
      * @param restRequest 请求参数
@@ -159,18 +166,18 @@ public class PrintService {
             String url = String.format("%s/api/openapi/sprinter/delPrinterQueue", properties.getDomain());
             String param = restRequest.toString();
             if (properties.getDebug()) {
-                 log.info("Request Url: {}\nRequest Param: {}", url, param);
+                log.info("Request Url: {}\nRequest Param: {}", url, param);
             }
             String json = HttpClientUtil.doPostJson(url, param);
             return JSON.parseObject(json, ObjectRestResponse.class);
         } catch (Exception ex) {
-            log.error("Invalid request parameter: {0}", ex);
+            log.error("Invalid request parameter: {}", ex);
             return JSON.parseObject(Constant.INVALID_PARAMETER, ObjectRestResponse.class);
         }
     }
 
     /**
-     * 4.查询订单是否打印成功 /api/openapi/sprinter/queryOrderState
+     * 5.查询订单是否打印成功 /api/openapi/sprinter/queryOrderState
      * 根据订单编号查询订单是否打印成功，订单编号由“打印订单”接口返回
      *
      * @param restRequest 请求参数
@@ -193,18 +200,18 @@ public class PrintService {
             String url = String.format("%s/api/openapi/sprinter/queryOrderState", properties.getDomain());
             String param = restRequest.toString();
             if (properties.getDebug()) {
-                 log.info("Request Url: {}\nRequest Param: {}", url, param);
+                log.info("Request Url: {}\nRequest Param: {}", url, param);
             }
             String json = HttpClientUtil.doPostJson(url, param);
             return JSON.parseObject(json, ObjectRestResponse.class);
         } catch (Exception ex) {
-            log.error("Invalid request parameter: {0}", ex);
+            log.error("Invalid request parameter: {}", ex);
             return JSON.parseObject(Constant.INVALID_PARAMETER, ObjectRestResponse.class);
         }
     }
 
     /**
-     * 5.查询打印机状态 /api/openapi/sprinter/queryPrinterStatus
+     * 6.查询打印机状态 /api/openapi/sprinter/queryPrinterStatus
      * 查询指定打印机状态，返回该打印机在线或离线，正常或异常的状态信息。
      *
      * @param restRequest 请求参数
@@ -232,18 +239,18 @@ public class PrintService {
             String url = String.format("%s/api/openapi/sprinter/queryPrinterStatus", properties.getDomain());
             String param = restRequest.toString();
             if (properties.getDebug()) {
-                 log.info("Request Url: {}\nRequest Param: {}", url, param);
+                log.info("Request Url: {}\nRequest Param: {}", url, param);
             }
             String json = HttpClientUtil.doPostJson(url, param);
             return JSON.parseObject(json, ObjectRestResponse.class);
         } catch (Exception ex) {
-            log.error("Invalid request parameter: {0}", ex);
+            log.error("Invalid request parameter: {}", ex);
             return JSON.parseObject(Constant.INVALID_PARAMETER, ObjectRestResponse.class);
         }
     }
 
     /**
-     * 6.获取待打印任务数 /api/openapi/sprinter/getAwaitTasks
+     * 7.获取待打印任务数 /api/openapi/sprinter/getAwaitTasks
      * 获取指定打印机打印队列中待打印任务数。
      *
      * @param restRequest 请求参数
@@ -266,47 +273,35 @@ public class PrintService {
             String url = String.format("%s/api/openapi/sprinter/getAwaitTasks", properties.getDomain());
             String param = restRequest.toString();
             if (properties.getDebug()) {
-                 log.info("Request Url: {}\nRequest Param: {}", url, param);
+                log.info("Request Url: {}\nRequest Param: {}", url, param);
             }
             String json = HttpClientUtil.doPostJson(url, param);
             return JSON.parseObject(json, ObjectRestResponse.class);
         } catch (Exception ex) {
-            log.error("Invalid request parameter: {0}", ex);
+            log.error("Invalid request parameter: {}", ex);
             return JSON.parseObject(Constant.INVALID_PARAMETER, ObjectRestResponse.class);
         }
     }
 
     /**
-     * 7.打印订单 /api/openapi/sprinter/print
+     * 8.打印订单 /api/openapi/sprinter/print
      * 发送用户需要打印的订单内容给芯烨电子面单打印机
      *
      * @param restRequest 请求参数
      * @return 正确返回订单编号
      */
     public ObjectRestResponse<String> printLabel(PrintOrderRequest restRequest) {
-        try {
-            AssertUtil.isDevelopInNoneEmpty(properties);
-            ObjectRestResponse<String> restResponse = new ObjectRestResponse<>();
-            if (StringUtils.isEmpty(restRequest.getSn()) || restRequest.getSn().length() != Constant.SN_MAX_LENGTH) {
-                if (properties.getDebug()) {
-                    log.info("The printer SN is invalid: {}", restRequest.getSn());
-                }
-                restResponse.setCode(10000);
-                restResponse.setMsg("The printer SN is invalid");
-                return restResponse;
-            }
-            restRequest.setUser(properties.getUser());
-            restRequest.setUserKey(properties.getUserKey());
-            String url = String.format("%s/api/openapi/sprinter/printLabel", properties.getDomain());
-            String param = restRequest.toString();
-            if (properties.getDebug()) {
-                 log.info("Request Url: {}\nRequest Param: {}", url, param);
-            }
-            String json = HttpClientUtil.doPostJson(url, param);
-            return JSON.parseObject(json, ObjectRestResponse.class);
-        } catch (Exception ex) {
-            log.error("Invalid request parameter: {0}", ex);
-            return JSON.parseObject(Constant.INVALID_PARAMETER, ObjectRestResponse.class);
-        }
+        return printOrder(restRequest, "printLabel");
+    }
+
+    /**
+     * 9.发送打印机天猫精灵语音操作指令响应 /api/openapi/sprinter/sendTmallSpiritVoice
+     * 发送打印机天猫精灵语音操作指令响应
+     *
+     * @param restRequest 请求参数
+     * @return 正确返回订单编号
+     */
+    public ObjectRestResponse<String> sendTmallSpiritVoice(PrintOrderRequest restRequest) {
+        return printOrder(restRequest, "sendTmallSpiritVoice");
     }
 }
