@@ -2,10 +2,13 @@ package io.github.dv996coding.service;
 
 import com.alibaba.fastjson.JSON;
 import io.github.dv996coding.properties.DevelopInfoProperties;
+import io.github.dv996coding.util.AssertUtil;
 import io.github.dv996coding.util.Constant;
 import io.github.dv996coding.util.HttpClientUtil;
 import io.github.dv996coding.vo.*;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -17,6 +20,7 @@ import javax.annotation.Resource;
  */
 @Component
 public class PrintService {
+    private static final Logger log = LoggerFactory.getLogger(PrintService.class);
     /**
      * 开发者信息
      */
@@ -31,26 +35,32 @@ public class PrintService {
      * @return 返回布尔类型：true 表示验证成功, false 表示验证失败
      */
     public ObjectRestResponse<Boolean> verifyPrinter(PrinterVoRequest restRequest) {
-        ObjectRestResponse<Boolean> restResponse = new ObjectRestResponse<>();
-        if (StringUtils.isEmpty(restRequest.getSn().trim()) || restRequest.getSn().length() != Constant.SN_MAX_LENGTH) {
-            restResponse.setCode(10000);
-            restResponse.setMsg("The printer SN is invalid");
-            restResponse.setData(false);
-            return restResponse;
+        try {
+            AssertUtil.isDevelopInNoneEmpty(properties);
+            ObjectRestResponse<Boolean> restResponse = new ObjectRestResponse<>();
+            if (StringUtils.isEmpty(restRequest.getSn()) || restRequest.getSn().length() != Constant.SN_MAX_LENGTH) {
+                restResponse.setCode(10000);
+                restResponse.setMsg("The printer SN is invalid");
+                restResponse.setData(false);
+                return restResponse;
+            }
+            restRequest.setUser(properties.getUser());
+            restRequest.setUserKey(properties.getUserKey());
+            if (StringUtils.isEmpty(restRequest.getName())) {
+                restRequest.setName("芯烨云条码打印机");
+            }
+            String url = String.format("%s/api/openapi/sprinter/verifyPrinter", properties.getDomain());
+            String param = restRequest.toString();
+            if (properties.getDebug()) {
+                System.out.println("Request Url: " + url);
+                System.out.println("Request Param: " + param);
+            }
+            String json = HttpClientUtil.doPostJson(url, param);
+            return JSON.parseObject(json, ObjectRestResponse.class);
+        } catch (Exception ex) {
+            log.error("Invalid request parameter: {0}", ex);
+            return JSON.parseObject(Constant.INVALID_PARAMETER, ObjectRestResponse.class);
         }
-        restRequest.setUser(properties.getUser());
-        restRequest.setUserKey(properties.getUserKey());
-        if (StringUtils.isEmpty(restRequest.getName())) {
-            restRequest.setName("芯烨云条码打印机");
-        }
-        String url = String.format("%s/api/openapi/sprinter/verifyPrinter", properties.getDomain());
-        String param = restRequest.toString();
-        if (properties.getDebug()) {
-            System.out.println("Request Url: " + url);
-            System.out.println("Request Param: " + param);
-        }
-        String json = HttpClientUtil.doPostJson(url, param);
-        return JSON.parseObject(json, ObjectRestResponse.class);
     }
 
 
@@ -62,22 +72,28 @@ public class PrintService {
      * @return 正确返回订单编号
      */
     public ObjectRestResponse<String> print(PrintOrderRequest restRequest) {
-        ObjectRestResponse<String> restResponse = new ObjectRestResponse<>();
-        if (StringUtils.isEmpty(restRequest.getSn().trim()) || restRequest.getSn().length() != Constant.SN_MAX_LENGTH) {
-            restResponse.setCode(10000);
-            restResponse.setMsg("The printer SN is invalid");
-            return restResponse;
+        try {
+            AssertUtil.isDevelopInNoneEmpty(properties);
+            ObjectRestResponse<String> restResponse = new ObjectRestResponse<>();
+            if (StringUtils.isEmpty(restRequest.getSn()) || restRequest.getSn().length() != Constant.SN_MAX_LENGTH) {
+                restResponse.setCode(10000);
+                restResponse.setMsg("The printer SN is invalid");
+                return restResponse;
+            }
+            restRequest.setUser(properties.getUser());
+            restRequest.setUserKey(properties.getUserKey());
+            String url = String.format("%s/api/openapi/sprinter/print", properties.getDomain());
+            String param = restRequest.toString();
+            if (properties.getDebug()) {
+                System.out.println("Request Url: " + url);
+                System.out.println("Request Param: " + param);
+            }
+            String json = HttpClientUtil.doPostJson(url, param);
+            return JSON.parseObject(json, ObjectRestResponse.class);
+        } catch (Exception ex) {
+            log.error("Invalid request parameter: {0}", ex);
+            return JSON.parseObject(Constant.INVALID_PARAMETER, ObjectRestResponse.class);
         }
-        restRequest.setUser(properties.getUser());
-        restRequest.setUserKey(properties.getUserKey());
-        String url = String.format("%s/api/openapi/sprinter/print", properties.getDomain());
-        String param = restRequest.toString();
-        if (properties.getDebug()) {
-            System.out.println("Request Url: " + url);
-            System.out.println("Request Param: " + param);
-        }
-        String json = HttpClientUtil.doPostJson(url, param);
-        return JSON.parseObject(json, ObjectRestResponse.class);
     }
 
     /**
@@ -88,23 +104,29 @@ public class PrintService {
      * @return 正确返回订单编号
      */
     public ObjectRestResponse<String> printImage(PrintOrderRequest restRequest) {
-        ObjectRestResponse<String> restResponse = new ObjectRestResponse<>();
-        if (StringUtils.isEmpty(restRequest.getSn().trim()) || restRequest.getSn().length() != Constant.SN_MAX_LENGTH) {
-            restResponse.setCode(10000);
-            restResponse.setMsg("The printer SN is invalid");
-            return restResponse;
-        }
-        restRequest.setUser(properties.getUser());
-        restRequest.setUserKey(properties.getUserKey());
-        String url = String.format("%s/api/openapi/sprinter/printImage", properties.getDomain());
-        String param = restRequest.toString();
+        try {
+            AssertUtil.isDevelopInNoneEmpty(properties);
+            ObjectRestResponse<String> restResponse = new ObjectRestResponse<>();
+            if (StringUtils.isEmpty(restRequest.getSn()) || restRequest.getSn().length() != Constant.SN_MAX_LENGTH) {
+                restResponse.setCode(10000);
+                restResponse.setMsg("The printer SN is invalid");
+                return restResponse;
+            }
+            restRequest.setUser(properties.getUser());
+            restRequest.setUserKey(properties.getUserKey());
+            String url = String.format("%s/api/openapi/sprinter/printImage", properties.getDomain());
+            String param = restRequest.toString();
 
-        if (properties.getDebug()) {
-            System.out.println("Request Url: " + url);
-            System.out.println("Request Param: " + param);
+            if (properties.getDebug()) {
+                System.out.println("Request Url: " + url);
+                System.out.println("Request Param: " + param);
+            }
+            String json = HttpClientUtil.doPostJson(url, param);
+            return JSON.parseObject(json, ObjectRestResponse.class);
+        } catch (Exception ex) {
+            log.error("Invalid request parameter: {0}", ex);
+            return JSON.parseObject(Constant.INVALID_PARAMETER, ObjectRestResponse.class);
         }
-        String json = HttpClientUtil.doPostJson(url, param);
-        return JSON.parseObject(json, ObjectRestResponse.class);
     }
 
     /**
@@ -115,22 +137,28 @@ public class PrintService {
      * @return 返回布尔类型：true 表示成功 false 表示失败
      */
     public ObjectRestResponse<Boolean> delPrinterQueue(PrinterVoRequest restRequest) {
-        ObjectRestResponse<Boolean> restResponse = new ObjectRestResponse<>();
-        if (StringUtils.isEmpty(restRequest.getSn().trim()) || restRequest.getSn().length() != Constant.SN_MAX_LENGTH) {
-            restResponse.setCode(10000);
-            restResponse.setMsg("The printer SN is invalid");
-            return restResponse;
+        try {
+            AssertUtil.isDevelopInNoneEmpty(properties);
+            ObjectRestResponse<Boolean> restResponse = new ObjectRestResponse<>();
+            if (StringUtils.isEmpty(restRequest.getSn()) || restRequest.getSn().length() != Constant.SN_MAX_LENGTH) {
+                restResponse.setCode(10000);
+                restResponse.setMsg("The printer SN is invalid");
+                return restResponse;
+            }
+            restRequest.setUser(properties.getUser());
+            restRequest.setUserKey(properties.getUserKey());
+            String url = String.format("%s/api/openapi/sprinter/delPrinterQueue", properties.getDomain());
+            String param = restRequest.toString();
+            if (properties.getDebug()) {
+                System.out.println("Request Url: " + url);
+                System.out.println("Request Param: " + param);
+            }
+            String json = HttpClientUtil.doPostJson(url, param);
+            return JSON.parseObject(json, ObjectRestResponse.class);
+        } catch (Exception ex) {
+            log.error("Invalid request parameter: {0}", ex);
+            return JSON.parseObject(Constant.INVALID_PARAMETER, ObjectRestResponse.class);
         }
-        restRequest.setUser(properties.getUser());
-        restRequest.setUserKey(properties.getUserKey());
-        String url = String.format("%s/api/openapi/sprinter/delPrinterQueue", properties.getDomain());
-        String param = restRequest.toString();
-        if (properties.getDebug()) {
-            System.out.println("Request Url: " + url);
-            System.out.println("Request Param: " + param);
-        }
-        String json = HttpClientUtil.doPostJson(url, param);
-        return JSON.parseObject(json, ObjectRestResponse.class);
     }
 
     /**
@@ -141,22 +169,28 @@ public class PrintService {
      * @return 已打印返回true, 未打印返回false
      */
     public ObjectRestResponse<Boolean> queryOrderState(PrintOrderStatusRequest restRequest) {
-        ObjectRestResponse<Boolean> restResponse = new ObjectRestResponse<>();
-        if (StringUtils.isEmpty(restRequest.getOrderId().trim())) {
-            restResponse.setCode(10000);
-            restResponse.setMsg("Invalid print order number");
-            return restResponse;
+        try {
+            AssertUtil.isDevelopInNoneEmpty(properties);
+            ObjectRestResponse<Boolean> restResponse = new ObjectRestResponse<>();
+            if (StringUtils.isEmpty(restRequest.getOrderId().trim())) {
+                restResponse.setCode(10000);
+                restResponse.setMsg("Invalid print order number");
+                return restResponse;
+            }
+            restRequest.setUser(properties.getUser());
+            restRequest.setUserKey(properties.getUserKey());
+            String url = String.format("%s/api/openapi/sprinter/queryOrderState", properties.getDomain());
+            String param = restRequest.toString();
+            if (properties.getDebug()) {
+                System.out.println("Request Url: " + url);
+                System.out.println("Request Param: " + param);
+            }
+            String json = HttpClientUtil.doPostJson(url, param);
+            return JSON.parseObject(json, ObjectRestResponse.class);
+        } catch (Exception ex) {
+            log.error("Invalid request parameter: {0}", ex);
+            return JSON.parseObject(Constant.INVALID_PARAMETER, ObjectRestResponse.class);
         }
-        restRequest.setUser(properties.getUser());
-        restRequest.setUserKey(properties.getUserKey());
-        String url = String.format("%s/api/openapi/sprinter/queryOrderState", properties.getDomain());
-        String param = restRequest.toString();
-        if (properties.getDebug()) {
-            System.out.println("Request Url: " + url);
-            System.out.println("Request Param: " + param);
-        }
-        String json = HttpClientUtil.doPostJson(url, param);
-        return JSON.parseObject(json, ObjectRestResponse.class);
     }
 
     /**
@@ -172,22 +206,28 @@ public class PrintService {
      * 备注：异常一般情况是缺纸，离线的判断是打印机与服务器失去联系超过 30 秒
      */
     public ObjectRestResponse<PrinterStatusResponse> queryPrinterStatus(PrinterVoRequest restRequest) {
-        ObjectRestResponse<PrinterStatusResponse> restResponse = new ObjectRestResponse<>();
-        if (StringUtils.isEmpty(restRequest.getSn().trim()) || restRequest.getSn().length() != Constant.SN_MAX_LENGTH) {
-            restResponse.setCode(10000);
-            restResponse.setMsg("The printer SN is invalid");
-            return restResponse;
+        try {
+            AssertUtil.isDevelopInNoneEmpty(properties);
+            ObjectRestResponse<PrinterStatusResponse> restResponse = new ObjectRestResponse<>();
+            if (StringUtils.isEmpty(restRequest.getSn()) || restRequest.getSn().length() != Constant.SN_MAX_LENGTH) {
+                restResponse.setCode(10000);
+                restResponse.setMsg("The printer SN is invalid");
+                return restResponse;
+            }
+            restRequest.setUser(properties.getUser());
+            restRequest.setUserKey(properties.getUserKey());
+            String url = String.format("%s/api/openapi/sprinter/queryPrinterStatus", properties.getDomain());
+            String param = restRequest.toString();
+            if (properties.getDebug()) {
+                System.out.println("Request Url: " + url);
+                System.out.println("Request Param: " + param);
+            }
+            String json = HttpClientUtil.doPostJson(url, param);
+            return JSON.parseObject(json, ObjectRestResponse.class);
+        } catch (Exception ex) {
+            log.error("Invalid request parameter: {0}", ex);
+            return JSON.parseObject(Constant.INVALID_PARAMETER, ObjectRestResponse.class);
         }
-        restRequest.setUser(properties.getUser());
-        restRequest.setUserKey(properties.getUserKey());
-        String url = String.format("%s/api/openapi/sprinter/queryPrinterStatus", properties.getDomain());
-        String param = restRequest.toString();
-        if (properties.getDebug()) {
-            System.out.println("Request Url: " + url);
-            System.out.println("Request Param: " + param);
-        }
-        String json = HttpClientUtil.doPostJson(url, param);
-        return JSON.parseObject(json, ObjectRestResponse.class);
     }
 
     /**
@@ -198,23 +238,29 @@ public class PrintService {
      * @return 返回指定打印机打印队列中待打印任务数
      */
     public ObjectRestResponse<Integer> getAwaitTasks(PrinterVoRequest restRequest) {
-        ObjectRestResponse<Integer> restResponse = new ObjectRestResponse<>();
-        if (StringUtils.isEmpty(restRequest.getSn().trim()) || restRequest.getSn().length() != Constant.SN_MAX_LENGTH) {
-            restResponse.setCode(10000);
-            restResponse.setMsg("The printer SN is invalid");
-            restResponse.setData(-1);
-            return restResponse;
+        try {
+            AssertUtil.isDevelopInNoneEmpty(properties);
+            ObjectRestResponse<Integer> restResponse = new ObjectRestResponse<>();
+            if (StringUtils.isEmpty(restRequest.getSn()) || restRequest.getSn().length() != Constant.SN_MAX_LENGTH) {
+                restResponse.setCode(10000);
+                restResponse.setMsg("The printer SN is invalid");
+                restResponse.setData(-1);
+                return restResponse;
+            }
+            restRequest.setUser(properties.getUser());
+            restRequest.setUserKey(properties.getUserKey());
+            String url = String.format("%s/api/openapi/sprinter/getAwaitTasks", properties.getDomain());
+            String param = restRequest.toString();
+            if (properties.getDebug()) {
+                System.out.println("Request Url: " + url);
+                System.out.println("Request Param: " + param);
+            }
+            String json = HttpClientUtil.doPostJson(url, param);
+            return JSON.parseObject(json, ObjectRestResponse.class);
+        } catch (Exception ex) {
+            log.error("Invalid request parameter: {0}", ex);
+            return JSON.parseObject(Constant.INVALID_PARAMETER, ObjectRestResponse.class);
         }
-        restRequest.setUser(properties.getUser());
-        restRequest.setUserKey(properties.getUserKey());
-        String url = String.format("%s/api/openapi/sprinter/getAwaitTasks", properties.getDomain());
-        String param = restRequest.toString();
-        if (properties.getDebug()) {
-            System.out.println("Request Url: " + url);
-            System.out.println("Request Param: " + param);
-        }
-        String json = HttpClientUtil.doPostJson(url, param);
-        return JSON.parseObject(json, ObjectRestResponse.class);
     }
 
     /**
@@ -225,21 +271,27 @@ public class PrintService {
      * @return 正确返回订单编号
      */
     public ObjectRestResponse<String> printLabel(PrintOrderRequest restRequest) {
-        ObjectRestResponse<String> restResponse = new ObjectRestResponse<>();
-        if (StringUtils.isEmpty(restRequest.getSn().trim()) || restRequest.getSn().length() != Constant.SN_MAX_LENGTH) {
-            restResponse.setCode(10000);
-            restResponse.setMsg("The printer SN is invalid");
-            return restResponse;
+        try {
+            AssertUtil.isDevelopInNoneEmpty(properties);
+            ObjectRestResponse<String> restResponse = new ObjectRestResponse<>();
+            if (StringUtils.isEmpty(restRequest.getSn()) || restRequest.getSn().length() != Constant.SN_MAX_LENGTH) {
+                restResponse.setCode(10000);
+                restResponse.setMsg("The printer SN is invalid");
+                return restResponse;
+            }
+            restRequest.setUser(properties.getUser());
+            restRequest.setUserKey(properties.getUserKey());
+            String url = String.format("%s/api/openapi/sprinter/printLabel", properties.getDomain());
+            String param = restRequest.toString();
+            if (properties.getDebug()) {
+                System.out.println("Request Url: " + url);
+                System.out.println("Request Param: " + param);
+            }
+            String json = HttpClientUtil.doPostJson(url, param);
+            return JSON.parseObject(json, ObjectRestResponse.class);
+        } catch (Exception ex) {
+            log.error("Invalid request parameter: {0}", ex);
+            return JSON.parseObject(Constant.INVALID_PARAMETER, ObjectRestResponse.class);
         }
-        restRequest.setUser(properties.getUser());
-        restRequest.setUserKey(properties.getUserKey());
-        String url = String.format("%s/api/openapi/sprinter/printLabel", properties.getDomain());
-        String param = restRequest.toString();
-        if (properties.getDebug()) {
-            System.out.println("Request Url: " + url);
-            System.out.println("Request Param: " + param);
-        }
-        String json = HttpClientUtil.doPostJson(url, param);
-        return JSON.parseObject(json, ObjectRestResponse.class);
     }
 }

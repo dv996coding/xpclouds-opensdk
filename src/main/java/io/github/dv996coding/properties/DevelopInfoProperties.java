@@ -20,7 +20,7 @@ public class DevelopInfoProperties {
     /**
      * 是否打印调试信息，默认false不打印
      */
-    private Boolean debug=false;
+    private Boolean debug = false;
     /**
      * 芯烨云条码打印机开放平台接口地址，具体参见开放平台文档说明
      */

@@ -26,7 +26,7 @@ public class PrintOrderRequest extends RestRequest {
     /**
      * 打印份数，默认为1
      */
-    private Integer copies;
+    private Integer copies=1;
     /**
      * 纸张宽度
      */
@@ -39,6 +39,21 @@ public class PrintOrderRequest extends RestRequest {
      * 是否切刀
      */
     private Boolean cutter = false;
+    /**
+     * 是否透传，
+     * true 透传方式不经过OSS，同时打印内容必须为打印机可识别的ZPL和TSPL指令。
+     * false 为了兼容现有对接的开发者不受影响，走OSS，此时打印内容可以是Url链接也可以是XML方式
+     */
+    private Boolean direct = false;
+
+    public void setDirect(Boolean direct) {
+        this.direct = direct;
+    }
+
+    public Boolean getDirect() {
+        return direct;
+    }
+
     public void setIdempotent(String idempotent) {
         this.idempotent = idempotent;
     }

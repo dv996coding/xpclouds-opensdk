@@ -30,4 +30,8 @@ public interface Constant {
      * 参数请求错误
      */
     Integer PARAM_ERROR=400;
+    /**
+     * 无效的请求参数
+     */
+    String INVALID_PARAMETER="{\"code\":400,\"msg\":\"Invalid request parameter\"}";
 }

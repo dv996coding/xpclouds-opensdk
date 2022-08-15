@@ -132,7 +132,7 @@ public final class HttpClientUtil {
                 } else if (status.equals(Constant.LIMIT_REQUEST)) {
                     return "{\"code\":429,\"msg\":\"too manny requests\"}";
                 } else if (status.equals(Constant.PARAM_ERROR)) {
-                    return "{\"code\":400,\"msg\":\"Parameter request error\"}";
+                    return Constant.INVALID_PARAMETER;
                 } else {
                     log.warn("Unexpected response status: {}", status);
                 }
