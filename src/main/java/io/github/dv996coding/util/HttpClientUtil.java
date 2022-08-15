@@ -1,6 +1,6 @@
 package io.github.dv996coding.util;
 
-import com.aliyuncs.utils.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;
@@ -116,7 +116,7 @@ public final class HttpClientUtil {
                     httpPost.addHeader(entry.getKey(), entry.getValue());
                 }
             }
-            if (!StringUtils.isEmpty(json)) {
+            if (StringUtils.isNotEmpty(json)) {
                 StringEntity entity = new StringEntity(json, "UTF-8");
                 entity.setContentEncoding("UTF-8");
                 httpPost.addHeader("Content-Type", "application/json;charset=UTF-8");
