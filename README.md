@@ -5,7 +5,7 @@ xp-420b 条码打印机sdk。产品详细介绍地址：https://www.xpyun.net/pr
 
 登录 [条码云打印机管理后台](https://manage-barcode.xpyun.net/#/login?redirect=%2Fhome)，获取开发者ID和开发者密钥。如下图，点击”我的资料“，即可在左侧看见开发者信息下的开发者ID和开发者密钥。**开发者ID和开发者密钥是保障打印业务稳定可靠的唯一凭证，切勿泄露**
 
-![developInfo](doc\img\developInfo.png)
+![developInfo](./doc/img/developInfo.png)
 
 ## 如何使用SDK
 
@@ -121,7 +121,7 @@ logging.config=classpath:logback-opensdk.xml
 
 （1）pom文件里面需要移除 aliyun-sdk-oss 
 
-![mavennoaly](\doc\img\mavennoaly.png)
+![mavennoaly](./doc/img/mavennoaly.png)
 
 ```xml
 <dependency>
@@ -139,7 +139,7 @@ logging.config=classpath:logback-opensdk.xml
 
 （2）主程序类里面不加载oss相关配置，添加以下注解
 
-![apposs](doc\img\apposs.png)
+![apposs](./doc/img/apposs.png)
 
 ```java
 @SpringBootApplication(exclude = {OssAutoConfiguration.class})
