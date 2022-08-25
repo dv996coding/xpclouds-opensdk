@@ -4,15 +4,16 @@ import com.alibaba.fastjson.JSON;
 
 /**
  * 打印订单类 私有参数
+ *
  * @author 984199774@qq.com
  */
 public class PrintOrderRequest extends RestRequest {
 
-    public PrintOrderRequest(String sn,String printOrderOssUrl) {
+    public PrintOrderRequest(String sn, String printOrderOssUrl) {
         this.sn = sn;
-        this.copies=1;
-        this.mode=1;
-        this.content=printOrderOssUrl;
+        this.copies = 1;
+        this.mode = 1;
+        this.content = printOrderOssUrl;
     }
 
     /**
@@ -26,7 +27,7 @@ public class PrintOrderRequest extends RestRequest {
     /**
      * 打印份数，默认为1
      */
-    private Integer copies=1;
+    private Integer copies = 1;
     /**
      * 纸张宽度
      */
@@ -46,6 +47,7 @@ public class PrintOrderRequest extends RestRequest {
      */
     private Boolean direct = false;
 
+
     public void setDirect(Boolean direct) {
         this.direct = direct;
     }
@@ -63,11 +65,24 @@ public class PrintOrderRequest extends RestRequest {
     }
 
     /**
-     * 打印模式：
+     * 打印内容是否进行ZLIB压缩，为了兼容正在使用的客户，云端默认为false
+     */
+    private Boolean compress = true;
+
+    public void setCompress(Boolean compress) {
+        this.compress = compress;
+    }
+
+    public Boolean getCompress() {
+        return compress;
+    }
+
+    /**
+     * 打印模式：默认为1 即打印机离线后云端缓存打印订单，默认缓存24小时
      * 值为0或不指定则会检查打印机是否在线，如果不在线则不生成打印订单，直接返回设备不在线状态码；如果在线则生成打印订单，并返回打印订单号。
      * 值为1不检查打印机是否在线，直接生成打印订单，并返回打印订单号。如果打印机不在线，订单将缓存在打印队列中，打印机正常在线时会自动打印。
      */
-    private Integer mode;
+    private Integer mode = 1;
 
     public String getSn() {
         return sn;

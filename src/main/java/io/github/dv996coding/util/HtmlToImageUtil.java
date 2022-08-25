@@ -1,6 +1,9 @@
 package io.github.dv996coding.util;
 
 import com.openhtmltopdf.swing.Java2DRenderer;
+import io.github.dv996coding.contants.Constant;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -21,6 +24,7 @@ import java.util.Base64;
  * @author JavaLyl
  */
 public class HtmlToImageUtil {
+    private static final Logger log = LoggerFactory.getLogger(HtmlToImageUtil.class);
     private Integer paperWidth;
     private Integer paperHeight;
 
@@ -51,14 +55,15 @@ public class HtmlToImageUtil {
             InputSource inputSource = new InputSource(reader);
             document = documentBuilder.parse(inputSource);
             Java2DRenderer renderer = new Java2DRenderer(document, paperWidth, paperHeight);
-            ImageIO.write(renderer.getImage(), "png", stream);
+            ImageIO.write(renderer.getImage(),  Constant.IMAGE_FORMAT, stream);
+            renderer.cleanup();
             return Base64.getEncoder().encodeToString(stream.toByteArray());
         } catch (ParserConfigurationException e) {
-            e.printStackTrace();
+            log.error("getHtml2ImageContent ParserConfigurationException: {}", e);
         } catch (SAXException e) {
-            e.printStackTrace();
+            log.error("getHtml2ImageContent SAXException: {}", e);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("getHtml2ImageContent IOException: ", e);
         } finally {
             if (reader != null) {
                 reader.close();
@@ -67,7 +72,7 @@ public class HtmlToImageUtil {
                 try {
                     stream.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    log.error("getHtml2ImageContent stream.close() IOException: ", e);
                 }
             }
         }
@@ -84,9 +89,9 @@ public class HtmlToImageUtil {
     public String getImage2Base64Str(BufferedImage image) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         try {
-            ImageIO.write(image, "png", stream);
+            ImageIO.write(image,  Constant.IMAGE_FORMAT, stream);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("getImage2Base64Str IOException: ", e);
             return null;
         }
         return Base64.getEncoder().encodeToString(stream.toByteArray());

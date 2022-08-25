@@ -1,7 +1,7 @@
 package io.github.dv996coding.zebra.impl;
 
 
-import io.github.dv996coding.util.ZPLConveter;
+import io.github.dv996coding.util.ZplConveter;
 import io.github.dv996coding.zebra.IZebraComand;
 
 import java.awt.image.BufferedImage;
@@ -27,7 +27,7 @@ public class GFCmdImpl implements IZebraComand {
 
     @Override
     public String getCommand() {
-        ZPLConveter zp = new ZPLConveter();
+        ZplConveter zp = new ZplConveter();
         zp.setCompressHex(true);
         zp.setBlacknessLimitPercentage(50);
         try {

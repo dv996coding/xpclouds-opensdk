@@ -1,12 +1,22 @@
 package io.github.dv996coding.util;
 
+import io.github.dv996coding.contants.Constant;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 /**
  * @author 984199774@qq.com
  */
 public class ImageUtil {
+    private static final Logger log = LoggerFactory.getLogger(ImageUtil.class);
+
     /**
      * 创建图片缩略图(等比缩放)
      *
@@ -16,6 +26,11 @@ public class ImageUtil {
      */
     public static BufferedImage createThumbnail(BufferedImage image, float width) {
         try {
+            int srcWidth = image.getWidth();
+
+            if (srcWidth == Integer.parseInt(String.valueOf(width))) {
+                return image;
+            }
             // 获得缩放的比例
             double ratio = 1.0;
             // 判断如果高、宽都不大于设定值，则不处理
@@ -33,7 +48,7 @@ public class ImageUtil {
                             Image.SCALE_SMOOTH), 0, 0, null);
             return bfImage;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("createThumbnail Exception: {}", e);
         }
         return null;
     }
@@ -176,6 +191,12 @@ public class ImageUtil {
         return rs / 9;
     }
 
+    /**
+     * 将原图片转灰度图
+     *
+     * @param srcImg 原图
+     * @return BufferedImage
+     */
     public static BufferedImage getBinaryGrayImage(BufferedImage srcImg) {
         BufferedImage destImg = new BufferedImage(srcImg.getWidth(), srcImg.getHeight(), BufferedImage.TYPE_BYTE_BINARY);
         Graphics graphics = destImg.getGraphics();
@@ -196,7 +217,7 @@ public class ImageUtil {
     /**
      * 2.二值化
      *
-     * @param bi 原图
+     * @param bi        原图
      * @param threshold 二值化分界值
      * @return 二值化后的图
      */
@@ -209,12 +230,14 @@ public class ImageUtil {
                 gray[x][y] = getGray(bi.getRGB(x, y));
             }
         }
+        return binaryImage(w, h, gray, threshold);
+    }
 
+    private static BufferedImage binaryImage(Integer w, Integer h, int[][] gray, Integer threshold) {
         BufferedImage nbi = new BufferedImage(w, h, BufferedImage.TYPE_BYTE_BINARY);
-//        int SW=128;
         for (int x = 0; x < w; x++) {
             for (int y = 0; y < h; y++) {
-                if (getAverageColor(gray, x, y, w, h) > threshold) {
+                if (getAverageColor(gray, x, y, w, h) < threshold) {
                     int max = new Color(255, 255, 255).getRGB();
                     nbi.setRGB(x, y, max);
                 } else {
@@ -235,29 +258,93 @@ public class ImageUtil {
     public static BufferedImage binaryImage(BufferedImage bufferImg) {
         int height = bufferImg.getHeight();
         int width = bufferImg.getWidth();
-        int[][] rgbArray = new int[width][height];
+        int[][] gray = new int[width][height];
 
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                rgbArray[i][j] = getImageRgb(bufferImg.getRGB(i, j));
+                gray[i][j] = getImageRgb(bufferImg.getRGB(i, j));
             }
         }
 
-        int threshold = otsuThreshold(rgbArray, height, width);
-        //  构造一个类型为预定义图像类型之一的 BufferedImage，TYPE_BYTE_BINARY（表示一个不透明的以字节打包的 1、2 或 4 位图像。）
-        BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_BINARY);
+        int threshold = otsuThreshold(gray, height, width);
+        return binaryImage(width, height, gray, threshold);
+    }
 
-        for (int i = 0; i < width; i++) {
-            for (int j = 0; j < height; j++) {
-                if (rgbArray[i][j] > threshold) {
-                    int black = new Color(255, 255, 255).getRGB();
-                    bufferedImage.setRGB(i, j, black);
-                } else {
-                    int white = new Color(0, 0, 0).getRGB();
-                    bufferedImage.setRGB(i, j, white);
+    /**
+     * byte[] 图片数据转 bufferedImage
+     *
+     * @param images 原图byte数据
+     * @return bufferedImage
+     */
+    public static BufferedImage byteArr2BufferedImage(byte[] images) {
+        ByteArrayInputStream stream = new ByteArrayInputStream(images);
+        try {
+            return ImageIO.read(stream);
+        } catch (IOException e) {
+            log.error("byteArr2BufferedImage Exception: {}", e);
+        } finally {
+            if (stream != null) {
+                try {
+                    stream.close();
+                } catch (IOException e) {
+                    log.error("byteArr2BufferedImage close Exception: {}", e);
                 }
             }
         }
-        return bufferedImage;
+        return null;
+    }
+
+    /**
+     * 将BufferedImage转图片byte[]
+     *
+     * @param image 图片数据
+     * @return byte[]
+     */
+    public static byte[] bufferedImage2ByteArr(BufferedImage image) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        try {
+            ImageIO.write(image, Constant.IMAGE_FORMAT, stream);
+            return stream.toByteArray();
+        } catch (IOException e) {
+            log.error("bufferedImage2ByteArr Exception: {}", e);
+        } finally {
+            if (stream != null) {
+                try {
+                    stream.close();
+                } catch (IOException e) {
+                    log.error("bufferedImage2ByteArr close Exception: {}", e);
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Reads in a sequence of bytes and prints out its 16 bit
+     * Cylcic Redundancy Check (CRC-CCIIT 0xFFFF).
+     * <p>
+     * 1 + x + x^5 + x^12 + x^16 is irreducible polynomial.
+     *
+     * @param bytes
+     * @return String
+     */
+
+    public static String getCRCHexString(byte[] bytes) {
+        int crc = 0x0000;           // initial value
+        int polynomial = 0x1021;    // 0001 0000 0010 0001  (0, 5, 12)
+        for (byte b : bytes) {
+            for (int i = 0; i < 8; i++) {
+                boolean bit = ((b >> (7 - i) & 1) == 1);
+                boolean c15 = ((crc >> 15 & 1) == 1);
+                crc <<= 1;
+
+                if (c15 ^ bit) {
+                    crc ^= polynomial;
+                }
+            }
+        }
+
+        crc &= 0xffff;
+        return Integer.toHexString(crc);
     }
 }

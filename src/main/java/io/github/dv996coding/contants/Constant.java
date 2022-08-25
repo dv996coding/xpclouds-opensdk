@@ -1,4 +1,4 @@
-package io.github.dv996coding.util;
+package io.github.dv996coding.contants;
 
 /**
  * sdk常量
@@ -34,4 +34,8 @@ public interface Constant {
      * 无效的请求参数
      */
     String INVALID_PARAMETER="{\"code\":400,\"msg\":\"Invalid request parameter\"}";
+    /**
+     * 图片格式
+     */
+    String IMAGE_FORMAT="png";
 }

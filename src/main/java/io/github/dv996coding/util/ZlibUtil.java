@@ -3,7 +3,6 @@ package io.github.dv996coding.util;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.Inflater;
@@ -12,9 +11,9 @@ import java.util.zip.InflaterInputStream;
 /**
  * zpl 压缩工具类
  * @author 98419
- * @create 2022-08-16 7:51
+ * &#064;create  2022-08-16 7:51
  */
-public class ZlibUtil {
+public abstract class ZlibUtil {
     /**
      * 压缩
      *
@@ -52,22 +51,21 @@ public class ZlibUtil {
     }
 
     /**
-     * 压缩
+     * 流压缩
      *
      * @param data 待压缩数据
-     * @param os   输出流
+     * @return byte[] 压缩后的数据
      */
-    public static void compress(byte[] data, OutputStream os) {
-        DeflaterOutputStream dos = new DeflaterOutputStream(os);
-
-        try {
-            dos.write(data, 0, data.length);
-
-            dos.finish();
-
-            dos.flush();
+    public static byte[] compressByOutputStream(byte[] data) {
+        try (ByteArrayOutputStream compressedImage = new ByteArrayOutputStream()) {
+            DeflaterOutputStream deflaterOutputStream = new DeflaterOutputStream(compressedImage);
+            deflaterOutputStream.write(data, 0, data.length);
+            deflaterOutputStream.finish();
+            deflaterOutputStream.flush();
+            deflaterOutputStream.close();
+            return compressedImage.toByteArray();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -130,3 +128,4 @@ public class ZlibUtil {
         return o.toByteArray();
     }
 }
+

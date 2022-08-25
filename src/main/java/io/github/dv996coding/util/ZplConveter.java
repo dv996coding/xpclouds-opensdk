@@ -1,5 +1,7 @@
 package io.github.dv996coding.util;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -9,12 +11,13 @@ import java.util.Map;
 /**
  * @author JavaLyl
  */
-public class ZPLConveter {
+public class ZplConveter {
     private int blackLimit = 380;
     private int total;
     private int widthBytes;
     private boolean compressHex = false;
     private static Map<Integer, String> mapCode = new HashMap<Integer, String>();
+
     {
         mapCode.put(1, "G");
         mapCode.put(2, "H");
@@ -56,14 +59,20 @@ public class ZPLConveter {
         mapCode.put(380, "y");
         mapCode.put(400, "z");
     }
+
     public String convertfromImg(BufferedImage image) throws IOException {
+        StringBuffer buffer = new StringBuffer(3);
         String cuerpo = createBody(image);
-        if(this.compressHex) {
+        if (this.compressHex) {
             cuerpo = encodeHexAscii(cuerpo);
         }
-        return headDoc() + cuerpo;
-        //return headDoc() + cuerpo + footDoc();
+        buffer.append(headDoc());
+        buffer.append(cuerpo);
+        buffer.append("^FS");
+        buffer.append(StringUtils.LF);
+        return buffer.toString();
     }
+
     private String createBody(BufferedImage orginalImage) throws IOException {
         StringBuffer sb = new StringBuffer();
         Graphics2D graphics = orginalImage.createGraphics();
@@ -71,84 +80,84 @@ public class ZPLConveter {
         graphics.dispose();
         int height = orginalImage.getHeight();
         int width = orginalImage.getWidth();
-        int rgb, red, green, blue, index=0;
-        char auxBinaryChar[] =  {'0', '0', '0', '0', '0', '0', '0', '0'};
-        widthBytes = width/8;
-        if(width%8>0){
-            widthBytes= (((int)(width/8))+1);
+        int rgb, red, green, blue, index = 0;
+        char[] auxBinaryChar = {'0', '0', '0', '0', '0', '0', '0', '0'};
+        widthBytes = width / 8;
+        if (width % 8 > 0) {
+            widthBytes = (((int) (width / 8)) + 1);
         } else {
-            widthBytes= width/8;
+            widthBytes = width / 8;
         }
-        this.total = widthBytes*height;
-        for (int h = 0; h<height; h++)
-        {
-            for (int w = 0; w<width; w++)
-            {
+        this.total = widthBytes * height;
+        for (int h = 0; h < height; h++) {
+            for (int w = 0; w < width; w++) {
                 rgb = orginalImage.getRGB(w, h);
-                red = (rgb >> 16 ) & 0x000000FF;
-                green = (rgb >> 8 ) & 0x000000FF;
+                red = (rgb >> 16) & 0x000000FF;
+                green = (rgb >> 8) & 0x000000FF;
                 blue = (rgb) & 0x000000FF;
                 char auxChar = '1';
                 int totalColor = red + green + blue;
-                if(totalColor>blackLimit){
+                if (totalColor > blackLimit) {
                     auxChar = '0';
                 }
                 auxBinaryChar[index] = auxChar;
                 index++;
-                if(index==8 || w==(width-1)){
+                if (index == 8 || w == (width - 1)) {
                     sb.append(fourByteBinary(new String(auxBinaryChar)));
-                    auxBinaryChar =  new char[]{'0', '0', '0', '0', '0', '0', '0', '0'};
-                    index=0;
+                    auxBinaryChar = new char[]{'0', '0', '0', '0', '0', '0', '0', '0'};
+                    index = 0;
                 }
             }
             sb.append("\n");
         }
         return sb.toString();
     }
-    private String fourByteBinary(String binaryStr){
-        int decimal = Integer.parseInt(binaryStr,2);
-        if (decimal>15){
-            return Integer.toString(decimal,16).toUpperCase();
+
+    private String fourByteBinary(String binaryStr) {
+        int decimal = Integer.parseInt(binaryStr, 2);
+        if (decimal > 15) {
+            return Integer.toString(decimal, 16).toUpperCase();
         } else {
-            return "0" + Integer.toString(decimal,16).toUpperCase();
+            return "0" + Integer.toString(decimal, 16).toUpperCase();
         }
     }
-    private String encodeHexAscii(String code){
-        int maxlinea =  widthBytes * 2;
+
+    private String encodeHexAscii(String code) {
+        int maxlinea = widthBytes * 2;
         StringBuffer sbCode = new StringBuffer();
         StringBuffer sbLinea = new StringBuffer();
         String previousLine = null;
         int counter = 1;
         char aux = code.charAt(0);
         boolean firstChar = false;
-        for(int i = 1; i< code.length(); i++ ){
-            if(firstChar){
+        for (int i = 1; i < code.length(); i++) {
+            if (firstChar) {
                 aux = code.charAt(i);
                 firstChar = false;
                 continue;
             }
-            if(code.charAt(i)=='\n'){
-                if(counter>=maxlinea && aux=='0'){
+            if (code.charAt(i) == '\n') {
+                if (counter >= maxlinea && aux == '0') {
                     sbLinea.append(",");
-                } else     if(counter>=maxlinea && aux=='F'){
+                } else if (counter >= maxlinea && aux == 'F') {
                     sbLinea.append("!");
-                } else if (counter>20){
-                    int multi20 = (counter/20)*20;
-                    int resto20 = (counter%20);
+                } else if (counter > 20) {
+                    int multi20 = (counter / 20) * 20;
+                    int resto20 = (counter % 20);
                     sbLinea.append(mapCode.get(multi20));
-                    if(resto20!=0){
+                    if (resto20 != 0) {
                         sbLinea.append(mapCode.get(resto20) + aux);
                     } else {
                         sbLinea.append(aux);
                     }
                 } else {
                     sbLinea.append(mapCode.get(counter) + aux);
-                    if(mapCode.get(counter)==null){
+                    if (mapCode.get(counter) == null) {
                     }
                 }
                 counter = 1;
                 firstChar = true;
-                if(sbLinea.toString().equals(previousLine)){
+                if (sbLinea.toString().equals(previousLine)) {
                     sbCode.append(":");
                 } else {
                     sbCode.append(sbLinea.toString());
@@ -157,14 +166,14 @@ public class ZPLConveter {
                 sbLinea.setLength(0);
                 continue;
             }
-            if(aux == code.charAt(i)){
+            if (aux == code.charAt(i)) {
                 counter++;
             } else {
-                if(counter>20){
-                    int multi20 = (counter/20)*20;
-                    int resto20 = (counter%20);
+                if (counter > 20) {
+                    int multi20 = (counter / 20) * 20;
+                    int resto20 = (counter % 20);
                     sbLinea.append(mapCode.get(multi20));
-                    if(resto20!=0){
+                    if (resto20 != 0) {
                         sbLinea.append(mapCode.get(resto20) + aux);
                     } else {
                         sbLinea.append(aux);
@@ -178,21 +187,25 @@ public class ZPLConveter {
         }
         return sbCode.toString();
     }
-    private String headDoc(){
-        String str = "^GFA,"+ total + ","+ total + "," + widthBytes +",";
-//        String str = "^XA" +
-//                "^FO0,0^GFA,"+ total + ","+ total + "," + widthBytes +",";
+
+    private String headDoc() {
+        // 默认为A4纸张，对应像素宽和高分别为 595, 842
+        // 页面大小以点为计量单位，1点为1英寸的1/72，1英寸为25.4毫米。A4纸大致为595×842
+        // 832 dot,468 dot
+        String str = "^GFA," + total + "," + total + "," + widthBytes + ", ";
         return str;
     }
-    private String footDoc(){
-        String str = "^FS"+
-                "^XZ";
+
+    private String footDoc() {
+        String str = "^FS^XZ";
         return str;
     }
+
     public void setCompressHex(boolean compressHex) {
         this.compressHex = compressHex;
     }
-    public void setBlacknessLimitPercentage(int percentage){
+
+    public void setBlacknessLimitPercentage(int percentage) {
         blackLimit = (percentage * 768 / 100);
     }
 }

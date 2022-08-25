@@ -1,123 +1,112 @@
-//package io.github.dv996coding.util;
-//
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
-//import org.springframework.util.Base64Utils;
-//
-//import java.awt.image.BufferedImage;
-//import java.io.UnsupportedEncodingException;
-//
-///**
-// * Zpl指令类
-// * @author 98419
-// * @create 2022-08-16 7:53
-// */
-//public class ZplCommandUtil {
-//    private static final Logger log = LoggerFactory.getLogger(ZplCommandUtil.class);
-//
-//    public static byte[] bitmap(BufferedImage image) {
-////        PrintBitmapUtil.BitmapRes res = PrintBitmapUtil.toBmpData(bitmap);
-//        byte[] datas = res.getData();
-//        log.info("compressBase64", "图片的字节数据长度:\t" + datas.length);
-//        byte[] compressData = ZlibUtil.compress(datas);
-//        log.info("compressBase64", "图片压缩后字节数据长度:\t" + compressData.length);
-//        byte[] base64Data = Base64Util.convert(compressData);
-//        log.info("compressBase64", "图片Base64的字节数据长度:\t" + base64Data.length);
-//        String sf = "^GFA,%d,%d,%d,:Z64:%s\n";
-//        int b = datas.length;
-//        int c = datas.length;
-//        int d = (int) Math.ceil(res.getWidth() / 8d);
-//        String str = String.format(sf, b, c, d, Base64Util.convert2String(compressData));
-//        byte[] data = strTobytes(str);
-//        return data;
-//    }
-//
-//    public static byte[] llBymm(int a) {
-//        String str = String.format("^LL%d\n", a * ConvertUtil.getRatio());
-//        byte[] data = strTobytes(str);
-//        return data;
-//    }
-//
-//    public static byte[] pwBymm(int a) {
-//        String str = String.format("^PW%d\n", a * ConvertUtil.getRatio());
-//        byte[] data = strTobytes(str);
-//        return data;
-//    }
-//
-//
-//    public static byte[] pm(boolean b) {
-//        String str = b ? "^PMY\n" : "^PMN\n";
-//        byte[] data = strTobytes(str);
-//        return data;
-//    }
-//
-//    public static byte[] fo(int a, int b) {
-//        String str = String.format("^FO%d,%d\n", a, b);
-//        byte[] data = strTobytes(str);
-//        return data;
-//    }
-//
-//    public static byte[] md(int a) {
-//        String str = String.format("^MD%d\n", a);
-//        byte[] data = strTobytes(str);
-//        return data;
-//    }
-//
-//    public static byte[] sd(int a) {
-//        String str = String.format("~SD%d\n", a);
-//        byte[] data = strTobytes(str);
-//        return data;
-//    }
-//
-//    public static byte[] pq(int q) {
-//        String str = String.format("^PQ%d,0,0,Y\n", q);
-//        byte[] data = strTobytes(str);
-//        return data;
-//    }
-//
-//    public static byte[] xz() {
-//        String str = "^XZ\r\n";
-//        byte[] data = strTobytes(str);
-//        return data;
-//    }
-//
-//    public static byte[] xa() {
-//        String str = "^XA\n";
-//        byte[] data = strTobytes(str);
-//        return data;
-//    }
-//
-//    public static byte[] sizeBymm(double m, double n) {
-//        String str = "\nSIZE " + m + " mm," + n + " mm\n";
-//        byte[] data = strTobytes(str);
-//        return data;
-//    }
-//
-//    public static byte[] gapBymm(double m, double n) {
-//        String str = "GAP " + m + " mm," + n + " mm\n";
-//        byte[] data = strTobytes(str);
-//        return data;
-//    }
-//
-//
-//    public static byte[] blineBymm(double m, double n) {
-//        String str = "BLINE " + m + " mm," + n + " mm\n";
-//        byte[] data = strTobytes(str);
-//        return data;
-//    }
-//
-//
-//    public static byte[] strTobytes(String str) {
-//        log.info("Zpl command: {}", str);
-//        String charsetName = "gbk";
-//        byte[] data = null;
-//        try {
-//            byte[] b = str.getBytes("UTF-8");
-//            data = (new String(b, "UTF-8")).getBytes(charsetName);
-//        } catch (UnsupportedEncodingException ex) {
-//            log.info("Zpl command encoding exception: {}", ex);
-//        }
-//
-//        return data;
-//    }
-//}
+package io.github.dv996coding.util;
+
+import io.github.dv996coding.contants.ZplContants;
+import org.apache.commons.lang3.StringUtils;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+/**
+ * Zpl指令类
+ *
+ * @author 98419
+ * &#064;create  2022-08-16 7:53
+ */
+public class ZplCommandUtil {
+//    private static final Logger LOG = LoggerFactory.getLogger(ZplCommandUtil.class);
+
+    public String getImage2ZplByZlib(BufferedImage resizedImage) {
+        // 对图片进行处理
+        DataBufferByte dataBufferByte = (DataBufferByte) resizedImage.getRaster().getDataBuffer();
+        byte[] encodedBytesImage = Base64.getMimeEncoder().encode(ZlibUtil.compress(dataBufferByte.getData()));
+        int rowBytes = getWidthBytes(resizedImage.getWidth());
+        String crcString = ImageUtil.getCRCHexString(encodedBytesImage);
+        int bytes = rowBytes * resizedImage.getHeight();
+
+        return String.format(ZplContants.GFA_ZPL, bytes, bytes, rowBytes,
+                new String(encodedBytesImage, StandardCharsets.US_ASCII), crcString, StringUtils.LF);
+    }
+
+    public String getImage2Zpl(BufferedImage resizedImage) {
+        // 对图片进行处理
+        DataBufferByte dataBufferByte = (DataBufferByte) resizedImage.getRaster().getDataBuffer();
+        String result = StringUtils.EMPTY;
+        byte[] compress = ZlibUtil.compressByOutputStream(dataBufferByte.getData());
+        if (compress != null && compress.length > 0) {
+            byte[] encodedBytesImage = Base64.getMimeEncoder().encode(compress);
+            int rowBytes = getWidthBytes(resizedImage.getWidth());
+            String crcString = ImageUtil.getCRCHexString(encodedBytesImage);
+            int bytes = rowBytes * resizedImage.getHeight();
+
+            result = String.format(ZplContants.GFA_ZPL, bytes, bytes, rowBytes,
+                    new String(encodedBytesImage, StandardCharsets.US_ASCII), crcString, StringUtils.LF);
+        }
+        return result;
+    }
+
+    public String getImageToAsciiByZpl(BufferedImage image) {
+        String ascii = getImageToAscii(image);
+        int rowBytes = getWidthBytes(image.getWidth());
+        String crcString = ImageUtil.getCRCHexString(ascii.getBytes());
+        int bytes = rowBytes * image.getHeight();
+        return String.format(ZplContants.GFA_ZPL, bytes, bytes, rowBytes, ascii, crcString, StringUtils.LF);
+    }
+
+    /**
+     * 获取图片的打印内容
+     *
+     * @param image 图片
+     * @return 打印内容
+     */
+    public String getImageToAscii(BufferedImage image) {
+        StringBuilder sb = new StringBuilder();
+        Graphics2D graphics = image.createGraphics();
+        graphics.drawImage(image, 0, 0, null);
+        int height = image.getHeight();
+        int width = image.getWidth();
+        int rgb, red, green, blue, index = 0;
+        char[] auxBinaryChar = {'0', '0', '0', '0', '0', '0', '0', '0'};
+        for (int h = 0; h < height; h++) {
+            for (int w = 0; w < width; w++) {
+                rgb = image.getRGB(w, h);
+                red = (rgb >> 16) & 0x000000FF;
+                green = (rgb >> 8) & 0x000000FF;
+                blue = (rgb) & 0x000000FF;
+                char auxChar = '1';
+                int totalColor = red + green + blue;
+                if (totalColor > 768 * 0.5) {
+                    auxChar = '0';
+                }
+                auxBinaryChar[index] = auxChar;
+                index++;
+                if (index == 8 || w == (width - 1)) {
+                    sb.append(fourByteBinary(new String(auxBinaryChar)));
+                    auxBinaryChar = new char[]{'0', '0', '0', '0', '0', '0', '0', '0'};
+                    index = 0;
+                }
+            }
+            sb.append("\n");
+        }
+        return sb.toString();
+    }
+
+    private String fourByteBinary(String binaryStr) {
+        int decimal = Integer.parseInt(binaryStr, 2);
+        if (decimal > 15) {
+            return Integer.toString(decimal, 16).toUpperCase();
+        } else {
+            return "0" + Integer.toString(decimal, 16).toUpperCase();
+        }
+    }
+
+    /**
+     * @param width ширина картинки в px
+     * @return размер пикселей в байтах
+     */
+    public int getWidthBytes(int width) {
+        return width % 8 > 0 ? width / 8 + 1 : width / 8;
+    }
+}
