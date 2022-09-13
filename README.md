@@ -1,11 +1,11 @@
 # xpcloudes-opensdk
-xp-420b 条码打印机sdk。产品详细介绍地址：https://www.xpyun.net/product-detail.html?id=1 支持打印不干胶标签、各种小票订单。支持打印HTML排版布局订单，pdf文件，图片订单数据，不干胶粘贴标签打印。针对不干胶标签打印采用XML模板化技术，使其排版更简单高效。
+xp-420b 条码打印机sdk。[产品详细介绍地址](https://www.xpyun.net/product-detail.html?id=1)：https://www.xpyun.net/product-detail.html?id=1 支持打印不干胶标签、各种小票订单。支持打印HTML排版布局订单，pdf文件，图片订单数据，不干胶粘贴标签打印。针对不干胶标签打印采用XML模板化技术，使其排版更简单高效。
 
 ## 如何获取开发者信息
 
-登录 [条码云打印机管理后台](https://manage-barcode.xpyun.net/#/login?redirect=%2Fhome)，获取开发者ID和开发者密钥。如下图，点击”我的资料“，即可在左侧看见开发者信息下的开发者ID和开发者密钥。**开发者ID和开发者密钥是保障打印业务稳定可靠的唯一凭证，切勿泄露**
+登录 [条码云打印机管理后台](https://platform-barcode.xpyun.net/#/login?redirect=%2Fhome)，获取开发者ID和开发者密钥。如下图，点击”我的资料“，即可在左侧看见开发者信息下的开发者ID和开发者密钥。**开发者ID和开发者密钥是保障打印业务稳定可靠的唯一凭证，切勿泄露**
 
-![developInfo](./doc/img/developInfo.png)
+![image](https://github.com/dv996coding/xpclouds-opensdk/blob/main/doc/img/developInfo.png)
 
 ## 如何使用SDK
 
@@ -121,7 +121,7 @@ logging.config=classpath:logback-opensdk.xml
 
 （1）pom文件里面需要移除 aliyun-sdk-oss 
 
-![mavennoaly](./doc/img/mavennoaly.png)
+![image](https://github.com/dv996coding/xpclouds-opensdk/blob/main/doc/img/mavennoaly.png)
 
 ```xml
 <dependency>
@@ -139,7 +139,7 @@ logging.config=classpath:logback-opensdk.xml
 
 （2）主程序类里面不加载oss相关配置，添加以下注解
 
-![apposs](./doc/img/apposs.png)
+![image](https://github.com/dv996coding/xpclouds-opensdk/blob/main/doc/img/apposs.png)
 
 ```java
 @SpringBootApplication(exclude = {OssAutoConfiguration.class})
@@ -181,6 +181,3 @@ logging.config=classpath:logback-opensdk.xml
 ```
 
 
-
-# 使用HTTP池化技术
-参考https://xww520.gitee.io/2020/03/29/HTTP%E6%B1%A0%E5%8C%96%E6%8A%80%E6%9C%AF%E7%9A%84%E8%90%BD%E5%9C%B0%E5%AE%9E%E8%B7%B5/ 这个链接，使用HTTP池化技术，提升程序执行性能
