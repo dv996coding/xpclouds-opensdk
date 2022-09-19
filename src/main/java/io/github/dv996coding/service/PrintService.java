@@ -304,4 +304,39 @@ public class PrintService {
     public ObjectRestResponse<String> sendTmallSpiritVoice(PrintOrderRequest restRequest) {
         return printOrder(restRequest, "sendTmallSpiritVoice");
     }
+
+    /**
+     * 10.上传店铺 LOGO /api/openapi/sprinter/uploadLogo
+     * 获取指定打印机打印队列中待打印任务数。
+     *
+     * @param restRequest 请求参数
+     * @return 返回指定打印机打印队列中待打印任务数
+     */
+    public ObjectRestResponse<String> uploadLogo(LogoMsgRequest restRequest) {
+        try {
+            AssertUtil.isDevelopInNoneEmpty(properties);
+            ObjectRestResponse<String> restResponse = new ObjectRestResponse<>();
+            if (StringUtils.isEmpty(restRequest.getSn()) || restRequest.getSn().length() != Constant.SN_MAX_LENGTH) {
+                if (properties.getDebug()) {
+                    log.info("The printer SN is invalid: {}", restRequest.getSn());
+                }
+                restResponse.setCode(10000);
+                restResponse.setMsg("The printer SN is invalid");
+                return restResponse;
+            }
+
+            restRequest.setUser(properties.getUser());
+            restRequest.setUserKey(properties.getUserKey());
+            String url = String.format("%s/api/openapi/sprinter/uploadLogo", properties.getDomain());
+            String param = restRequest.toString();
+            if (properties.getDebug()) {
+                log.info("Request Url: {}\nRequest Param: {}", url, param);
+            }
+            String json = HttpClientUtil.doPostJson(url, param);
+            return JSON.parseObject(json, ObjectRestResponse.class);
+        } catch (Exception ex) {
+            log.error("Invalid request parameter: {}", ex);
+            return JSON.parseObject(Constant.INVALID_PARAMETER, ObjectRestResponse.class);
+        }
+    }
 }
