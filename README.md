@@ -15,7 +15,7 @@ xp-420b 条码打印机sdk。[产品详细介绍地址](https://www.xpyun.net/pr
 <dependency>
     <groupId>io.github.dv996coding</groupId>
     <artifactId>xpclouds-opensdk</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.5</version>
 </dependency>
 ```
 
@@ -49,7 +49,7 @@ xp:
     #接口域名地址，默认国内地址
     domain: https://open-barcode.xpyun.net
 logging:
-  config: classpath:logback-opensdk.xml #SDK日志输出文件。默认不可更改
+  config: classpath:logback-opensdk.xml #SDK日志输出文件。若不想记录，可以不配置
 
 ```
 
@@ -77,7 +77,7 @@ xp.dev.userKey=<yourUserKey>
 xp.dev.debug=false
 #接口域名地址，默认国内地址
 xp.dev.domain=https://open-barcode.xpyun.net
-#SDK日志输出文件。默认不可更改
+#SDK日志输出文件。若不想记录，可以不配置
 logging.config=classpath:logback-opensdk.xml
 ```
 
@@ -127,7 +127,7 @@ logging.config=classpath:logback-opensdk.xml
 <dependency>
 	<groupId>io.github.dv996coding</groupId>
 	<artifactId>xpclouds-opensdk</artifactId>
-	<version>1.0.3</version>
+	<version>1.0.5</version>
 	<exclusions>
 		<exclusion>
 			<groupId>com.aliyun.oss</groupId>
@@ -161,7 +161,7 @@ xp:
     #接口域名地址，默认国内地址
     domain: https://open-barcode.xpyun.net
 logging:
-  config: classpath:logback-opensdk.xml #SDK日志输出文件。默认不可更改
+  config: classpath:logback-opensdk.xml #SDK日志输出文件。若不想记录，可以不配置
 
 ```
 
@@ -176,7 +176,7 @@ xp.dev.userKey=<yourUserKey>
 xp.dev.debug=false
 #接口域名地址，默认国内地址
 xp.dev.domain=https://open-barcode.xpyun.net
-#SDK日志输出文件。默认不可更改
+#SDK日志输出文件。若不想记录，可以不配置
 logging.config=classpath:logback-opensdk.xml
 ```
 
