@@ -46,7 +46,46 @@ public class PrintOrderRequest extends RestRequest {
      * false 为了兼容现有对接的开发者不受影响，走OSS，此时打印内容可以是Url链接也可以是XML方式
      */
     private Boolean direct = false;
+    /**
+     * 是否实时打印，如果设置为true，打印机离线重连时未打印订单不会自动加载
+     */
+    private boolean realTime = false;
 
+    public boolean isRealTime() {
+        return realTime;
+    }
+
+    public void setRealTime(boolean realTime) {
+        this.realTime = realTime;
+    }
+
+    /**
+     * 是否支持发送打印机原生指令，默认false不支持，true支持，且打印指令内容必须为base64加密的字符串且仅支持打印机在线打印
+     */
+    private boolean supportNativeInstruction = false;
+
+    public boolean isSupportNativeInstruction() {
+        return supportNativeInstruction;
+    }
+
+    public void setSupportNativeInstruction(boolean supportNativeInstruction) {
+        this.supportNativeInstruction = supportNativeInstruction;
+    }
+
+    /**
+     * 订单有效期，单位：秒。订单打印时，超过该时间的订单将不会自动加载打印，当参数设置为 0 时，将采用系统默认设置值。
+     * 使用该参数时，需要将参数mode 设置为1。
+     * 取值范围：0 < expiresIn < 86400。
+     */
+    private int expiresIn = 86400;
+
+    public int getExpiresIn() {
+        return expiresIn;
+    }
+
+    public void setExpiresIn(int expiresIn) {
+        this.expiresIn = expiresIn;
+    }
 
     public void setDirect(Boolean direct) {
         this.direct = direct;
