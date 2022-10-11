@@ -149,7 +149,7 @@ public class PrintService {
      * @param restRequest 请求参数
      * @return 返回布尔类型：true 表示成功 false 表示失败
      */
-    public ObjectRestResponse<Boolean> delPrinterQueue(PrinterVoRequest restRequest) {
+    public ObjectRestResponse<Boolean> delPrinterQueue(ClearPrintOrderRequest restRequest) {
         try {
             AssertUtil.isDevelopInNoneEmpty(properties);
             ObjectRestResponse<Boolean> restResponse = new ObjectRestResponse<>();
